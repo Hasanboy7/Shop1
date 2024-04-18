@@ -4,10 +4,12 @@ from kitoblar.models import Tillar,Kitob
 from .serializers import SerializerTillar,SerializerObject
 from rest_framework.views import APIView
 from rest_framework import status
-
+from rest_framework.permissions import IsAuthenticated
+from users.custom_permission import IsAdminOrReadOnliy
 # Create your views here.
 
 class ViewTillar(APIView):
+    permission_classes=(IsAdminOrReadOnliy,)
     def get(self,request):
         tillar=Tillar.objects.all()
         serilizer=SerializerTillar(tillar,many=True)

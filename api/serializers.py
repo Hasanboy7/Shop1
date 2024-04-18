@@ -12,4 +12,7 @@ class SerializerObject(serializers.ModelSerializer):
     class Meta:
         model=Kitob
         exclude=['id']
-        
+    
+
+
+    
