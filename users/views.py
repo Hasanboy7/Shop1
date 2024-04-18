@@ -75,36 +75,36 @@ class UpdateView(LoginRequiredMixin,View):
 
 
 # api
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
+# from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
+# from rest_framework.views import APIView
 class LoginApiView(APIView):
-    authentication_classes = [SessionAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+#     authentication_classes = [SessionAuthentication, BasicAuthentication]
+#     permission_classes = [IsAuthenticated]
 
-    def get(self, request, format=None):
-        content = {
-            'user': str(request.user),  # `django.contrib.auth.User` instance.
-            'auth': str(request.auth),  # None
+#     def get(self, request, format=None):
+#         content = {
+#             'user': str(request.user),  # `django.contrib.auth.User` instance.
+#             'auth': str(request.auth),  # None
+#         }
+#         return Response(content)
+    def post(self,request):
+        data=request.data
+        serializes=LogIn(data=data)
+
+        serializes.is_valid(raise_exception=True)
+        user=authenticate(username=serializes.data['username'],password=serializes.data['password'])
+
+        if user is None:
+            data={
+                'status':False,
+                'messages':"User not found"         
+                }
+            return Response(data)
+        refresh = RefreshToken.for_user(user)
+        data={
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
         }
-        return Response(content)
-    # def post(self,request):
-    #     data=request.data
-    #     serializes=LogIn(data=data)
-
-    #     serializes.is_valid(raise_exception=True)
-    #     user=authenticate(username=serializes.data['username'],password=serializes.data['password'])
-
-    #     if user is None:
-    #         data={
-    #             'status':False,
-    #             'messages':"User not found"         
-    #             }
-    #         return Response(data)
-    #     refresh = RefreshToken.for_user(user)
-    #     data={
-    #         'refresh': str(refresh),
-    #         'access': str(refresh.access_token),
-    #     }
-    #     return Response(data)
+        return Response(data)
