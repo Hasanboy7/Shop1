@@ -12,7 +12,7 @@ class Tillar(models.Model):
 
 class Kitob(models.Model):
     name=models.CharField(max_length=100,null=True,blank=True)
-    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,)
+    user=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True,related_name='user')
     til=models.ForeignKey(Tillar,on_delete=models.CASCADE,null=True,blank=True,related_name='til')
     body=models.TextField(null=True,blank=True)
     img=models.ImageField(upload_to='kitob/',null=True,blank=True)
@@ -25,7 +25,7 @@ class Kitob(models.Model):
 
 class Comment(models.Model):
     user=models.ForeignKey(User,on_delete=models.CASCADE)
-    place=models.ForeignKey(Kitob,on_delete=models.CASCADE,related_name='izohlar')
+    place=models.ForeignKey(Kitob,on_delete=models.CASCADE,related_name='izohlar',null=True,blank=True)
     comment_text=models.TextField()
     start_give=models.IntegerField(validators=[MinValueValidator(1),MaxValueValidator(5)])
     create_at=models.DateField(default=timezone.now)

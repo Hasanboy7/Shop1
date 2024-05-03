@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from kitoblar.models import Tillar,Kitob
-from .serializers import SerializerTillar,SerializerObject
+from .serializers import SerializerTillar,SerializerObject,CommentCreate
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -81,3 +81,26 @@ class ViewKitob(APIView):
         kitob=Kitob.objects.get(id=id)
         kitob.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class CommentCreateView(APIView):
+    def post(self,request):
+        permission_classes=[IsAuthenticated,]
+        user=request.user
+        request.data['user']=user.id
+        serializers=CommentCreate(data=request.data,many=True)
+        serializers.is_valid(raise_exception=True)
+        serializers.save()
+
+        return Response(serializers.data)
+    
+class DeletPost(APIView):
+    permission_classes=[IsAuthenticated,]
+    def delete(self,request,id):
+        try:
+            post=Kitob.objects.get(id=id)
+        
+        except:
+            return Response("Bunday Post yo'q")
+        post.delete()
+
+        return Response({"messages":"Mufaqyatli o'chirildi"})

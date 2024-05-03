@@ -6,9 +6,12 @@ from .forms import RegisterForm,LoginForm,UpdateForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from rest_framework.views import APIView
-from .serializers import LogIn
+from rest_framework.generics import ListAPIView 
+from .serializers import LoginSerializer,RegisterSerializers,UserSerializers,PostUserSerializers
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import status
+from kitoblar.models import Kitob
 
 
 # Create your views here.
@@ -74,37 +77,40 @@ class UpdateView(LoginRequiredMixin,View):
 
 
 
-# api
-# from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-# from rest_framework.permissions import IsAuthenticated
-# from rest_framework.response import Response
-# from rest_framework.views import APIView
+
+
+
+# serializers
+    
 class LoginApiView(APIView):
 #     authentication_classes = [SessionAuthentication, BasicAuthentication]
 #     permission_classes = [IsAuthenticated]
 
-#     def get(self, request, format=None):
-#         content = {
-#             'user': str(request.user),  # `django.contrib.auth.User` instance.
-#             'auth': str(request.auth),  # None
-#         }
-#         return Response(content)
     def post(self,request):
         data=request.data
-        serializes=LogIn(data=data)
-
+        serializes=LoginSerializer(data=data)
         serializes.is_valid(raise_exception=True)
-        user=authenticate(username=serializes.data['username'],password=serializes.data['password'])
+        return Response(serializes.data,status=status.HTTP_200_OK)
 
-        if user is None:
-            data={
-                'status':False,
-                'messages':"User not found"         
-                }
-            return Response(data)
-        refresh = RefreshToken.for_user(user)
-        data={
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
-        return Response(data)
+class RegisterApiView(APIView):
+    def post(self,request):
+        data=request.data
+        serilaziers=RegisterSerializers(data=data)
+        serilaziers.is_valid(raise_exception=True)
+        serilaziers.save()
+        return Response(serilaziers.data,status=status.HTTP_201_CREATED)
+
+class UserView(ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializers
+
+class UserPost(APIView):
+    def get(self,request,id):
+        queryset=User.objects.get(id=id)
+        user_post=Kitob.objects.filter(user=queryset)
+        serializers=PostUserSerializers(data=user_post,many=True)
+        serializers.is_valid(raise_exception=True)
+        return Response(serializers.data)
+    
+
+        

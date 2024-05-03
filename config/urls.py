@@ -25,7 +25,7 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('users/',include('users.urls')),
+    path('user/',include('users.urls')),
     path('',include('kitoblar.urls')),
     path('api/',include('api.urls')),
     # yasik
